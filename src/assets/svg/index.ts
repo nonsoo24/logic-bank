@@ -26,6 +26,7 @@ import BookAccount from './book-account.svg';
 import FluentPhone from './fluent-phone-add.svg';
 import PhoneAddFilled from './phone-add-filled.svg';
 import SolarUser from './solar-user-id-bold.svg';
+import InfoIconError from './info-error-icon.svg';
 
 // App Logo - Change this import to update app logo everywhere
 export const AppLogo = FirstBankLogo;
@@ -57,4 +58,5 @@ export {
   FluentPhone,
   PhoneAddFilled,
   SolarUser,
+  InfoIconError,
 };

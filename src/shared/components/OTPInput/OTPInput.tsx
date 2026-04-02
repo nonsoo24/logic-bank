@@ -6,7 +6,7 @@ import {
   type ChangeEvent,
 } from 'react';
 import { AppHintText } from '../AppHintText';
-import { InfoIcon } from '@/assets/svg';
+import { InfoIconError } from '@/assets/svg';
 
 export interface OTPInputProps {
   length?: number;
@@ -115,7 +115,7 @@ export function OTPInput({
   );
 
   const baseInputClasses = `
-    w-12 h-14
+    w-[60px] h-[60px]
     !text-center text-lg font-medium
     border rounded-sm
     outline-none transition-colors text-black
@@ -171,14 +171,20 @@ export function OTPInput({
       </div>
 
       {error && (
-        <div id={`${inputId}-error`} className="flex items-center gap-1.5 mt-1" role="alert">
-          <img src={InfoIcon} alt="" className="w-4 h-4 shrink-0" />
-          <span className="text-sm text-error">{error}</span>
+        <div
+          id={`${inputId}-error`}
+          className="flex items-center gap-1.5 mt-1 flex-wrap"
+          role="alert"
+        >
+          <img src={InfoIconError} alt="" className="w-4 h-4 shrink-0" />
+          <AppHintText variant="error" className="">
+            {error}
+          </AppHintText>
           {onCancelRequest && (
             <button
               type="button"
               onClick={onCancelRequest}
-              className="text-sm text-primary underline ml-1 hover:text-primary/80"
+              className="text-sm text-primary underline ml-1 hover:text-primary/80 whitespace-nowrap"
             >
               Cancel Request
             </button>

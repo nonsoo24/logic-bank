@@ -6,8 +6,8 @@
 import { bankAccounts, MOCK_OTP, OTP_EXPIRY_SECONDS, type BankAccount } from '@/shared/constants';
 
 // Simulated network delay range (ms)
-const MIN_DELAY = 1000;
-const MAX_DELAY = 2000;
+const MIN_DELAY = 300;
+const MAX_DELAY = 700;
 
 const delay = (ms: number, signal?: AbortSignal): Promise<void> =>
   new Promise((resolve, reject) => {

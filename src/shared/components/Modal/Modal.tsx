@@ -4,7 +4,7 @@ import { AppButton } from '@/shared/components/AppButton';
 
 const MODAL_DIALOG_CLASS = 'backdrop:bg-navy/60 bg-transparent p-4 sm:p-6 m-auto';
 const MODAL_PANEL_CLASS =
-  'bg-white rounded-lg p-6 sm:p-8 w-[min(92vw,48rem)] text-center shadow-xl';
+  'bg-white rounded-lg p-6 sm:p-8 w-[min(92vw,30rem)] h-[min(92vw,23rem)] flex flex-col items-center text-center shadow-xl';
 
 export type ModalVariant = 'info' | 'success' | 'error' | 'warning';
 
@@ -68,9 +68,9 @@ export function Modal({
     if (!dialog) return;
 
     if (isOpen) {
-      dialog.showModal();
+      if (!dialog.open) dialog.showModal();
     } else {
-      dialog.close();
+      if (dialog.open) dialog.close();
     }
   }, [isOpen]);
 
@@ -85,8 +85,6 @@ export function Modal({
 
   const config = variantConfig[variant];
 
-  if (!isOpen) return null;
-
   return (
     <dialog
       ref={dialogRef}
@@ -95,46 +93,48 @@ export function Modal({
       aria-labelledby="modal-title"
       aria-describedby={description ? 'modal-description' : undefined}
     >
-      <div className={MODAL_PANEL_CLASS}>
-        {!hideIcon && (
-          <div className="flex justify-center mb-6">
-            <img src={config.icon} alt={config.iconAlt} className="w-16 h-16" />
-          </div>
-        )}
-
-        <h2 id="modal-title" className="text-xl font-bold text-neutral-dark mb-2 text-center!">
-          {title}
-        </h2>
-
-        {children ? (
-          <div className="mb-8">{children}</div>
-        ) : (
-          description && (
-            <p id="modal-description" className="text-neutral-gray text-sm mb-8 text-center!">
-              {description}
-            </p>
-          )
-        )}
-
-        <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 justify-center">
-          {secondaryButton && (
-            <AppButton
-              variant="outline"
-              color="primary"
-              label={secondaryButton.label}
-              onClick={secondaryButton.onClick}
-              className="w-full sm:min-w-35"
-            />
+      {isOpen && (
+        <div className={MODAL_PANEL_CLASS}>
+          {!hideIcon && (
+            <div className="flex justify-center mb-4 mt-6">
+              <img src={config.icon} alt={config.iconAlt} className="w-14 h-14" />
+            </div>
           )}
-          <AppButton
-            variant="solid"
-            color="primary"
-            label={primaryButton.label}
-            onClick={primaryButton.onClick}
-            className="w-full sm:min-w-35"
-          />
+
+          <h2 id="modal-title" className="text-xl font-bold text-neutral-dark mb-2 text-center!">
+            {title}
+          </h2>
+
+          {children ? (
+            <div className="mb-6">{children}</div>
+          ) : (
+            description && (
+              <p id="modal-description" className="text-neutral-gray text-sm mb-6 text-center!">
+                {description}
+              </p>
+            )
+          )}
+
+          <div className="w-full flex flex-col-reverse sm:flex-row gap-3 justify-center">
+            {secondaryButton && (
+              <AppButton
+                variant="outline"
+                color="primary"
+                label={secondaryButton.label}
+                onClick={secondaryButton.onClick}
+                className="w-full sm:flex-1 sm:max-w-[12rem]"
+              />
+            )}
+            <AppButton
+              variant="solid"
+              color="primary"
+              label={primaryButton.label}
+              onClick={primaryButton.onClick}
+              className="w-full sm:flex-1 sm:max-w-[12rem]"
+            />
+          </div>
         </div>
-      </div>
+      )}
     </dialog>
   );
 }

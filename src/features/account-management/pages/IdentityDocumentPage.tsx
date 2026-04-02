@@ -470,13 +470,26 @@ export function IdentityDocumentPage() {
     }
   }, [countdown, accountNumber, startCountdown]);
 
-  // Handle cancel request from OTP error modal
+  // Handle cancel request from OTP error modal or inline OTP error
   const handleCancelRequest = useCallback(() => {
     hideOtpErrorModal();
-    resetFlow();
-    clearFiles();
-    navigate(ROUTES.HOME);
-  }, [hideOtpErrorModal, resetFlow, clearFiles, navigate]);
+    // Stop and reset countdown
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+    setCountdown(0);
+    setHasResentCode(false);
+    // Reset verification state so OTP input hides
+    setIsAccountVerified(false);
+    setAccountError(null);
+    setOtpError(null);
+    verificationAttemptedRef.current = false;
+    isVerifyingOtpRef.current = false;
+    // Clear form fields
+    setValue('accountNumber', '');
+    setValue('otp', '');
+  }, [hideOtpErrorModal, setValue]);
 
   // Handle Update button click - validate and show proceed modal
   const handleUpdateClick = async () => {
