@@ -234,7 +234,9 @@ export const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(function
               <span className="text-primary underline font-light text-xs">Choose file</span>
               <span className="text-black text-xs"> or drag here</span>
             </p>
-            <p className="text-xs text-black mt-1 font-light">{hint}</p>
+            <p className="text-xs sm:text-sm text-black mt-1 font-light leading-relaxed whitespace-normal break-words max-w-full px-2">
+              {hint}
+            </p>
           </div>
         )}
       </div>
