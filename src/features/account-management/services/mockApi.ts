@@ -9,9 +9,22 @@ import { bankAccounts, MOCK_OTP, OTP_EXPIRY_SECONDS, type BankAccount } from '@/
 const MIN_DELAY = 1000;
 const MAX_DELAY = 2000;
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number, signal?: AbortSignal): Promise<void> =>
+  new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException('Aborted', 'AbortError'));
+      return;
+    }
+    const timer = setTimeout(resolve, ms);
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(new DOMException('Aborted', 'AbortError'));
+    };
+    signal?.addEventListener('abort', onAbort, { once: true });
+  });
 
-const randomDelay = () => delay(MIN_DELAY + Math.random() * (MAX_DELAY - MIN_DELAY));
+const randomDelay = (signal?: AbortSignal) =>
+  delay(MIN_DELAY + Math.random() * (MAX_DELAY - MIN_DELAY), signal);
 
 export interface VerifyAccountResponse {
   success: boolean;
@@ -47,8 +60,11 @@ const otpExpiryMap = new Map<string, number>();
  * POST /verify-account
  * Validates account number and sends OTP if valid
  */
-export async function verifyAccount(accountNumber: string): Promise<VerifyAccountResponse> {
-  await randomDelay();
+export async function verifyAccount(
+  accountNumber: string,
+  signal?: AbortSignal
+): Promise<VerifyAccountResponse> {
+  await randomDelay(signal);
 
   const account = bankAccounts.find((acc) => acc.accountNumber === accountNumber);
 
@@ -75,8 +91,12 @@ export async function verifyAccount(accountNumber: string): Promise<VerifyAccoun
  * POST /verify-otp
  * Validates the OTP entered by user
  */
-export async function verifyOTP(accountNumber: string, otp: string): Promise<VerifyOTPResponse> {
-  await randomDelay();
+export async function verifyOTP(
+  accountNumber: string,
+  otp: string,
+  signal?: AbortSignal
+): Promise<VerifyOTPResponse> {
+  await randomDelay(signal);
 
   // Validate OTP - must match the mock OTP
   if (otp !== MOCK_OTP) {
@@ -112,8 +132,11 @@ export async function verifyOTP(accountNumber: string, otp: string): Promise<Ver
  * POST /resend-otp
  * Resends OTP to user's registered phone/email
  */
-export async function resendOTP(accountNumber: string): Promise<ResendOTPResponse> {
-  await randomDelay();
+export async function resendOTP(
+  accountNumber: string,
+  signal?: AbortSignal
+): Promise<ResendOTPResponse> {
+  await randomDelay(signal);
 
   const account = bankAccounts.find((acc) => acc.accountNumber === accountNumber);
 
@@ -140,11 +163,11 @@ export async function resendOTP(accountNumber: string): Promise<ResendOTPRespons
  * POST /validate-documents
  * Validates the identity documents before proceeding
  */
-export async function validateDocuments(): Promise<{
+export async function validateDocuments(signal?: AbortSignal): Promise<{
   success: boolean;
   error?: string;
 }> {
-  await randomDelay();
+  await randomDelay(signal);
 
   // Simulate successful validation
   return {
@@ -156,11 +179,14 @@ export async function validateDocuments(): Promise<{
  * POST /submit-identity-update
  * Submits the identity document update request
  */
-export async function submitIdentityUpdate(data: Record<string, unknown>): Promise<{
+export async function submitIdentityUpdate(
+  data: Record<string, unknown>,
+  signal?: AbortSignal
+): Promise<{
   success: boolean;
   error?: string;
 }> {
-  await randomDelay();
+  await randomDelay(signal);
 
   // Simulate successful submission
   console.log('Identity update submitted:', data);

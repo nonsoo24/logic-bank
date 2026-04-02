@@ -37,6 +37,9 @@ import {
 
 const ACTION_BUTTON_CLASS = 'w-full sm:w-[18rem]';
 
+const isAbortError = (err: unknown): boolean =>
+  err instanceof DOMException && err.name === 'AbortError';
+
 export function IdentityDocumentPage() {
   const navigate = useNavigate();
 
@@ -110,6 +113,9 @@ export function IdentityDocumentPage() {
   const [hasResentCode, setHasResentCode] = useState(false);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const verificationAttemptedRef = useRef(false);
+  const isVerifyingOtpRef = useRef(false);
+  const isResendingOtpRef = useRef(false);
+  const isSubmittingRef = useRef(false);
   const utilityBillRef = useRef<FileUploadHandle>(null);
   const documentFrontRef = useRef<FileUploadHandle>(null);
   const documentBackRef = useRef<FileUploadHandle>(null);
@@ -299,6 +305,8 @@ export function IdentityDocumentPage() {
 
   // Verify account when 10 digits entered
   useEffect(() => {
+    const controller = new AbortController();
+
     const verifyAccountNumber = async () => {
       if (
         currentStep === FLOW_STEPS.VERIFICATION &&
@@ -312,7 +320,7 @@ export function IdentityDocumentPage() {
         setAccountError(null);
 
         try {
-          const response = await verifyAccount(accountNumber);
+          const response = await verifyAccount(accountNumber, controller.signal);
 
           if (response.success && response.data) {
             setIsAccountVerified(true);
@@ -324,16 +332,20 @@ export function IdentityDocumentPage() {
             setAccountError(response.error || 'Account verification failed');
             verificationAttemptedRef.current = false;
           }
-        } catch {
-          setAccountError('An error occurred. Please try again.');
+        } catch (err) {
+          if (isAbortError(err)) return;
+          setAccountError('Network error. Please check your connection and try again.');
           verificationAttemptedRef.current = false;
         } finally {
-          setIsVerifyingAccount(false);
+          if (!controller.signal.aborted) {
+            setIsVerifyingAccount(false);
+          }
         }
       }
     };
 
     verifyAccountNumber();
+    return () => controller.abort();
   }, [
     accountNumber,
     currentStep,
@@ -357,18 +369,22 @@ export function IdentityDocumentPage() {
 
   // Verify OTP when 6 digits entered
   useEffect(() => {
+    const controller = new AbortController();
+
     const verifyOtpCode = async () => {
       if (
         otp?.length === 6 &&
         accountNumber?.length === 10 &&
         !isOtpVerified &&
-        isAccountVerified
+        isAccountVerified &&
+        !isVerifyingOtpRef.current
       ) {
+        isVerifyingOtpRef.current = true;
         setIsVerifyingOtp(true);
         setOtpError(null);
 
         try {
-          const response = await verifyOTP(accountNumber, otp);
+          const response = await verifyOTP(accountNumber, otp, controller.signal);
 
           if (response.success) {
             // Stop countdown
@@ -386,19 +402,26 @@ export function IdentityDocumentPage() {
             setTimeout(() => setStep(FLOW_STEPS.DOCUMENTS), 500);
           } else {
             setOtpError(response.error || 'OTP verification failed');
-            // Show OTP error modal
             showOtpErrorModal();
           }
-        } catch {
-          setOtpError('An error occurred. Please try again.');
+        } catch (err) {
+          if (isAbortError(err)) return;
+          setOtpError('Network error. Please check your connection and try again.');
           showOtpErrorModal();
         } finally {
-          setIsVerifyingOtp(false);
+          if (!controller.signal.aborted) {
+            setIsVerifyingOtp(false);
+            isVerifyingOtpRef.current = false;
+          }
         }
       }
     };
 
     verifyOtpCode();
+    return () => {
+      controller.abort();
+      isVerifyingOtpRef.current = false;
+    };
   }, [
     otp,
     accountNumber,
@@ -422,26 +445,30 @@ export function IdentityDocumentPage() {
   }, [hasResentCode]);
 
   const handleResendOtp = useCallback(async () => {
-    if (countdown === 0 && accountNumber && !isResendingOtp) {
-      setIsResendingOtp(true);
-      setOtpError(null);
+    if (countdown > 0 || !accountNumber || isResendingOtpRef.current) return;
 
-      try {
-        const response = await resendOTP(accountNumber);
+    isResendingOtpRef.current = true;
+    setIsResendingOtp(true);
+    setOtpError(null);
 
-        if (response.success) {
-          setHasResentCode(true);
-          startCountdown();
-        } else {
-          setOtpError(response.error || 'Failed to resend OTP');
-        }
-      } catch {
-        setOtpError('Failed to resend OTP. Please try again.');
-      } finally {
-        setIsResendingOtp(false);
+    try {
+      const response = await resendOTP(accountNumber);
+
+      if (response.success) {
+        setHasResentCode(true);
+        startCountdown();
+      } else {
+        setOtpError(response.error || 'Failed to resend OTP');
       }
+    } catch (err) {
+      if (!isAbortError(err)) {
+        setOtpError('Network error. Please try again.');
+      }
+    } finally {
+      setIsResendingOtp(false);
+      isResendingOtpRef.current = false;
     }
-  }, [countdown, accountNumber, isResendingOtp, startCountdown]);
+  }, [countdown, accountNumber, startCountdown]);
 
   // Handle cancel request from OTP error modal
   const handleCancelRequest = useCallback(() => {
@@ -453,9 +480,8 @@ export function IdentityDocumentPage() {
 
   // Handle Update button click - validate and show proceed modal
   const handleUpdateClick = async () => {
-    if (isUpdating) return;
+    if (isUpdating || isSubmittingRef.current) return;
 
-    // Validate document fields first
     const isValid = await trigger([
       'nin',
       'documentType',
@@ -466,10 +492,10 @@ export function IdentityDocumentPage() {
     ]);
 
     if (isValid) {
+      isSubmittingRef.current = true;
       setIsUpdating(true);
 
       try {
-        // Simulate API call to validate documents
         const response = await validateDocuments();
 
         if (response.success) {
@@ -483,16 +509,19 @@ export function IdentityDocumentPage() {
             onPrimary: closeModal,
           });
         }
-      } catch {
+      } catch (err) {
         openModal({
           variant: 'error',
           title: 'Validation Failed',
-          description: 'An error occurred during validation. Please try again.',
+          description: isAbortError(err)
+            ? 'Request was cancelled.'
+            : 'Network error. Please check your connection and try again.',
           primaryLabel: 'Close',
           onPrimary: closeModal,
         });
       } finally {
         setIsUpdating(false);
+        isSubmittingRef.current = false;
       }
     }
   };
@@ -504,8 +533,9 @@ export function IdentityDocumentPage() {
   };
 
   const onSubmit = async (data: IdentityDocumentFormData) => {
-    if (isUpdating) return;
+    if (isUpdating || isSubmittingRef.current) return;
 
+    isSubmittingRef.current = true;
     setIsUpdating(true);
 
     try {
@@ -546,11 +576,13 @@ export function IdentityDocumentPage() {
           onSecondary: closeModal,
         });
       }
-    } catch {
+    } catch (err) {
       openModal({
         variant: 'error',
         title: 'Update request failed',
-        description: 'Your update request failed. Kindly visit the nearest branch',
+        description: isAbortError(err)
+          ? 'Request was cancelled.'
+          : 'Network error. Please check your connection and try again.',
         primaryLabel: 'Home',
         secondaryLabel: 'Close',
         onPrimary: () => {
@@ -563,6 +595,7 @@ export function IdentityDocumentPage() {
       });
     } finally {
       setIsUpdating(false);
+      isSubmittingRef.current = false;
     }
   };
 
