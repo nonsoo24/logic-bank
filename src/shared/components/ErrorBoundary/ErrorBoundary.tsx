@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AppLogo } from '@/assets/svg';
+import { AppButton } from '@/shared/components/AppButton';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -100,18 +101,17 @@ function ErrorFallback({ error, onRetry, onGoHome }: ErrorFallbackProps) {
           )}
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={onRetry}
-              className="px-6 py-2.5 bg-navy text-white rounded font-medium hover:bg-navy/90 transition-colors"
-            >
+            <AppButton onClick={onRetry} variant="solid" color="primary" className="w-full sm:w-48">
               Try Again
-            </button>
-            <button
+            </AppButton>
+            <AppButton
               onClick={onGoHome}
-              className="px-6 py-2.5 border border-navy text-navy rounded font-medium hover:bg-navy/5 transition-colors"
+              variant="outline"
+              color="primary"
+              className="w-full sm:w-48"
             >
               Go to Home
-            </button>
+            </AppButton>
           </div>
         </div>
 
