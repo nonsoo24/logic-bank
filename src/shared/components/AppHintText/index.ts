@@ -1,0 +1,1 @@
+export { AppHintText } from './AppHintText';
