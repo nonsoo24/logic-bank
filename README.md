@@ -17,7 +17,13 @@ The solution was built against a Figma specification as part of a senior fronten
 
 ---
 
-## 🚀 Platform
+## � Design
+
+**Figma Prototype:** [Digital Account Maintenance Solution](https://www.figma.com/design/RiGj1uoXILAs4jRKzHiVmU/Digital-Account-Maintenance-Solution?node-id=173-261&t=70uJgMtkhyjJaiUf-0)
+
+---
+
+## �🚀 Platform
 
 - [x] Web (responsive — mobile, tablet, desktop)
 
@@ -295,4 +301,4 @@ npm run build
 
 ## 📜 License
 
-This project was built as part of a technical assessment for Logic Bank. All rights reserved.
+This project was built as part of a technical assessment for First Bank. All rights reserved.
