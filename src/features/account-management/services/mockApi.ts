@@ -8,6 +8,7 @@ import { bankAccounts, MOCK_OTP, OTP_EXPIRY_SECONDS, type BankAccount } from '@/
 // Simulated network delay range (ms)
 const MIN_DELAY = 300;
 const MAX_DELAY = 700;
+const OTP_VERIFY_DELAY = 3000; // 3 seconds for OTP verification
 
 const delay = (ms: number, signal?: AbortSignal): Promise<void> =>
   new Promise((resolve, reject) => {
@@ -96,7 +97,8 @@ export async function verifyOTP(
   otp: string,
   signal?: AbortSignal
 ): Promise<VerifyOTPResponse> {
-  await randomDelay(signal);
+  // Longer delay for OTP verification (8 seconds)
+  await delay(OTP_VERIFY_DELAY, signal);
 
   // Validate OTP - must match the mock OTP
   if (otp !== MOCK_OTP) {

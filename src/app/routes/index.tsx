@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from '@/shared/components';
 import { ROUTES } from '@/shared/constants';
+import { ScrollToTop } from './ScrollToTop';
 
 const HomePage = lazy(() =>
   import('@/features/account-management/pages/HomePage').then((module) => ({
@@ -48,6 +49,7 @@ function RouteLoadingFallback() {
 export const AppRoutes = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Suspense fallback={<RouteLoadingFallback />}>
         <Routes>
           <Route path={ROUTES.HOME} element={<HomePage />} />

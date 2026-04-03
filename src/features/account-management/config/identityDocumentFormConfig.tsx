@@ -110,7 +110,7 @@ export function getFileUploadFields(
       props: {
         label: 'Upload your Identity Document (Front)',
       },
-      disabled: isOutstandingStep || options.documentFrontUploaded,
+      disabled: isOutstandingStep,
     },
     {
       name: 'documentBack',
@@ -122,7 +122,7 @@ export function getFileUploadFields(
       props: {
         label: 'Back',
       },
-      disabled: isOutstandingStep || options.documentBackUploaded,
+      disabled: isOutstandingStep,
     },
   ];
 }
@@ -145,7 +145,7 @@ export function getUtilityBillField(
     props: {
       label: 'Upload your Utility Bill',
     },
-    disabled: isOutstandingStep || options.utilityBillUploaded,
+    disabled: isOutstandingStep,
   };
 }
 

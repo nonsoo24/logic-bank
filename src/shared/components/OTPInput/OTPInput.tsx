@@ -170,27 +170,31 @@ export function OTPInput({
         )}
       </div>
 
-      {error && (
-        <div
-          id={`${inputId}-error`}
-          className="flex items-center gap-1.5 mt-1 flex-wrap"
-          role="alert"
-        >
-          <img src={InfoIconError} alt="" className="w-4 h-4 shrink-0" />
-          <AppHintText variant="error" className="">
-            {error}
-          </AppHintText>
-          {onCancelRequest && (
-            <button
-              type="button"
-              onClick={onCancelRequest}
-              className="text-sm text-primary underline ml-1 hover:text-primary/80 whitespace-nowrap"
-            >
-              Cancel Request
-            </button>
-          )}
-        </div>
-      )}
+      <div className="flex items-center justify-between gap-2">
+        {error && (
+          <div
+            id={`${inputId}-error`}
+            className="flex items-center gap-1.5 mt-1 flex-wrap"
+            role="alert"
+          >
+            <img src={InfoIconError} alt="" className="w-4 h-4 shrink-0" />
+            <AppHintText variant="error" className="font-light text-base! ml-1!">
+              {error}
+            </AppHintText>
+          </div>
+        )}
+
+        {/* Cancel link - always show when handler provided */}
+        {onCancelRequest && error && (
+          <button
+            type="button"
+            onClick={onCancelRequest}
+            className="font-light text-base text-primary underline mt-1 hover:text-primary/80 cursor-pointer"
+          >
+            Cancel Request
+          </button>
+        )}
+      </div>
 
       {hint && !error && <AppHintText id={`${inputId}-hint`}>{hint}</AppHintText>}
     </div>

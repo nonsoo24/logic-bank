@@ -7,6 +7,8 @@ export { Layout } from './Layout';
 export type { LayoutProps } from './Layout';
 export { BackHeader } from './BackHeader';
 export type { BackHeaderProps } from './BackHeader';
+export { LegalAgreement } from './LegalAgreement';
+export type { LegalAgreementProps } from './LegalAgreement';
 export { Modal } from './Modal';
 export type { ModalProps, ModalVariant, ModalButton } from './Modal';
 export { DocumentUploadModal } from './DocumentUploadModal';

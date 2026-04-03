@@ -348,12 +348,12 @@ export function IdentityDocumentPage() {
             { label: 'Employer Address', required: false },
             { label: 'Annual Turn-Over', required: false },
           ].map(({ label, required }) => (
-            <li key={label} className="font-normal text-sm text-neutral-gray">
+            <li key={label}>
               {label}
               {required && (
                 <>
                   {' '}
-                  (<span className="text-neutral-gray font-bold text-sm italic">compulsory</span>
+                  (<span className="text-primary italic">compulsory</span>
                   <span className="text-error">*</span>)
                 </>
               )}

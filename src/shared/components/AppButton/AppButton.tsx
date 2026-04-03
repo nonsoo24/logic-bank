@@ -17,7 +17,7 @@ export interface AppButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> 
 
 const sizeClasses: Record<ButtonSize, string> = {
   sm: 'h-9 px-4 text-sm',
-  md: 'h-11 px-6 text-base w-[192px]',
+  md: 'h-11 px-6 text-base',
   lg: 'h-12 px-8 text-base',
 };
 

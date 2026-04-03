@@ -30,7 +30,7 @@ export interface LayoutProps extends NavbarProps {
  */
 export function Layout({
   children,
-  showFooter = false,
+  showFooter = true,
   bgColor = 'bg-white',
   className = '',
   ...navbarProps

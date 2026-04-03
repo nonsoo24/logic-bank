@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import FooterBG from '@/assets/svg/Footer.svg';
 import { AppLogoSymbol } from '@/assets/svg';
+import { APP_CONFIG } from '@/shared/constants';
 import {
   footerSections,
   languages,
@@ -75,10 +76,28 @@ function LanguageDropdown({
   onSelect: (value: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const selectedLabel = languages.find((l) => l.value === selectedLanguage)?.label || 'English';
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 bg-white text-navy px-4 py-2 rounded min-w-35 text-sm font-medium"
@@ -149,8 +168,9 @@ export function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pt-6 md:pt-8 border-t border-accent-gold">
           <p className="text-xs text-white/70">
-            © {new Date().getFullYear()} First Bank of Nigeria Ltd. A FirstHoldCo Company. Licensed
-            by the Central Bank of Nigeria
+            © {new Date().getFullYear()} {APP_CONFIG.BANK_NAME_FULL}. A{' '}
+            {APP_CONFIG.PARENT_COMPANY.replace(' Group', '')} Company. Licensed by the Central Bank
+            of Nigeria
           </p>
 
           <button

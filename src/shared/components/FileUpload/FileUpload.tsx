@@ -167,7 +167,7 @@ export const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(function
 
   const baseClasses = `
     relative flex flex-col items-center justify-center
-    min-h-[120px] px-6 py-8
+    h-[160px] px-6 py-4
     border-2 border-dashed rounded-lg
     transition-colors cursor-pointer
   `;

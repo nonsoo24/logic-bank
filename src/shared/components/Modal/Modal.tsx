@@ -4,7 +4,7 @@ import { AppButton } from '@/shared/components/AppButton';
 
 const MODAL_DIALOG_CLASS = 'backdrop:bg-navy/60 bg-transparent p-4 sm:p-6 m-auto';
 const MODAL_PANEL_CLASS =
-  'bg-white rounded-lg p-6 sm:p-8 w-[min(92vw,30rem)] h-[min(92vw,23rem)] flex flex-col items-center text-center shadow-xl';
+  'bg-white rounded-lg p-6 sm:p-8 w-[min(92vw,30rem)] flex flex-col items-center justify-center text-center shadow-xl';
 
 export type ModalVariant = 'info' | 'success' | 'error' | 'warning';
 
@@ -96,7 +96,7 @@ export function Modal({
       {isOpen && (
         <div className={MODAL_PANEL_CLASS}>
           {!hideIcon && (
-            <div className="flex justify-center mb-4 mt-6">
+            <div className="flex justify-center mb-4">
               <img src={config.icon} alt={config.iconAlt} className="w-14 h-14" />
             </div>
           )}
@@ -130,7 +130,7 @@ export function Modal({
               color="primary"
               label={primaryButton.label}
               onClick={primaryButton.onClick}
-              className="w-full sm:flex-1 sm:max-w-[12rem]"
+              className={`w-full sm:flex-1 ${secondaryButton ? 'sm:max-w-[12rem]' : ''}`}
             />
           </div>
         </div>
