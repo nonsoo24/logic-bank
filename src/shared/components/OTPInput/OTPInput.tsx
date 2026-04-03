@@ -115,8 +115,8 @@ export function OTPInput({
   );
 
   const baseInputClasses = `
-    w-[60px] h-[60px]
-    !text-center text-lg font-medium
+    w-10 h-12 sm:w-12 sm:h-14 md:w-[60px] md:h-[60px]
+    !text-center text-base sm:text-lg font-medium
     border rounded-sm
     outline-none transition-colors text-black
   `;
@@ -135,9 +135,9 @@ export function OTPInput({
         </label>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <div
-          className="flex gap-3"
+          className="flex gap-2 sm:gap-3"
           role="group"
           aria-label={label || 'OTP Input'}
           aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}

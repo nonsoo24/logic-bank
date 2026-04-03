@@ -35,8 +35,8 @@ export function DocumentsSection({
       {/* NIN, Document Type, Document Number */}
       <DynamicForm fields={documentFields} control={control} currentStep={currentStep} />
 
-      {/* File Upload Fields - in a 2-column grid */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* File Upload Fields - stack on mobile, 2 columns on sm+ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {fileUploadFields.map((field) => (
           <DynamicField
             key={field.name}
@@ -51,8 +51,8 @@ export function DocumentsSection({
         Document must be clear, legible and genuine. Upload uprightly
       </p>
 
-      {/* Utility Bill - half width */}
-      <div className="w-1/2 pr-2">
+      {/* Utility Bill - full width on mobile, half on sm+ */}
+      <div className="w-full sm:w-1/2 sm:pr-2">
         <DynamicField config={utilityBillField} control={control} currentStep={currentStep} />
       </div>
 
