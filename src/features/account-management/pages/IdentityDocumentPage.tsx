@@ -83,12 +83,17 @@ export function IdentityDocumentPage() {
   const activeDocumentFieldRef = useRef<'front' | 'back'>('front');
 
   // Account/OTP state for cancel request coordination
-  const [isAccountVerified, setIsAccountVerified] = useState(false);
+  const {
+    accountNumber: storedAccountNumber,
+    isVerified: storedIsVerified,
+    setAccountNumber: storeSetAccountNumber,
+    setVerified: storeSetVerified,
+  } = useAccountStore();
+
+  // Initialize from persisted store state
+  const [isAccountVerified, setIsAccountVerified] = useState(storedIsVerified);
   const [maskedPhone, setMaskedPhone] = useState('');
   const [maskedEmail, setMaskedEmail] = useState('');
-
-  const { setAccountNumber: storeSetAccountNumber, setVerified: storeSetVerified } =
-    useAccountStore();
   const {
     closeModal,
     isOpen,
@@ -115,7 +120,7 @@ export function IdentityDocumentPage() {
     mode: 'onChange',
     reValidateMode: 'onChange',
     defaultValues: {
-      accountNumber: persistedFormData.accountNumber || '',
+      accountNumber: persistedFormData.accountNumber || storedAccountNumber || '',
       otp: persistedFormData.otp || '',
       nin: persistedFormData.nin || '',
       documentType: persistedFormData.documentType || '',
