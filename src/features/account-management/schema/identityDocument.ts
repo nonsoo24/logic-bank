@@ -18,7 +18,10 @@ export const identityDocumentSchema = z.object({
 
   documentType: z.string().min(1, 'Please select a document type'),
 
-  documentNumber: z.string().min(1, 'Document number is required'),
+  documentNumber: z
+    .string()
+    .min(1, 'Document number is required')
+    .regex(/^[a-zA-Z0-9]+$/, 'Document number must be alphanumeric (letters and numbers only)'),
 
   documentFront: z
     .instanceof(File, { message: 'Please upload the front of your document' })

@@ -113,8 +113,8 @@ export function useFormSubmission({
             secondaryLabel: 'Close',
             onPrimary: () => {
               closeModal();
+              setStep(FLOW_STEPS.SUBMITTED); // Prevents consent redirect
               navigate(ROUTES.HOME, { replace: true });
-              // Delay cleanup to allow navigation to complete before resetting
               setTimeout(() => {
                 resetFlow();
                 clearFiles();
@@ -122,6 +122,7 @@ export function useFormSubmission({
             },
             onSecondary: () => {
               closeModal();
+              setStep(FLOW_STEPS.SUBMITTED); // Prevents consent redirect
               navigate(ROUTES.HOME, { replace: true });
               setTimeout(() => {
                 resetFlow();
@@ -168,7 +169,7 @@ export function useFormSubmission({
         isSubmittingRef.current = false;
       }
     },
-    [isUpdating, openModal, closeModal, resetFlow, clearFiles, navigate]
+    [isUpdating, openModal, closeModal, setStep, resetFlow, clearFiles, navigate]
   );
 
   return {
