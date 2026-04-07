@@ -10,6 +10,32 @@ const MIN_DELAY = 300;
 const MAX_DELAY = 700;
 const OTP_VERIFY_DELAY = 3000; // 3 seconds for OTP verification
 
+/**
+ * Network failure simulation settings
+ * Set FAILURE_RATE to a value between 0 and 1 to simulate random failures
+ * Use window.__SIMULATE_NETWORK_FAILURE__ = true in console for guaranteed failure
+ */
+const FAILURE_RATE = 0; // 0 = no random failures, 0.3 = 30% failure rate
+
+declare global {
+  interface Window {
+    __SIMULATE_NETWORK_FAILURE__?: boolean;
+  }
+}
+
+function shouldSimulateFailure(): boolean {
+  // Check for manual override first
+  if (typeof window !== 'undefined' && window.__SIMULATE_NETWORK_FAILURE__) {
+    return true;
+  }
+  // Random failure based on rate
+  return Math.random() < FAILURE_RATE;
+}
+
+function simulateNetworkError(): never {
+  throw new Error('Network error. Please check your connection and try again.');
+}
+
 const delay = (ms: number, signal?: AbortSignal): Promise<void> =>
   new Promise((resolve, reject) => {
     if (signal?.aborted) {
@@ -180,9 +206,13 @@ export async function validateDocuments(signal?: AbortSignal): Promise<{
 /**
  * POST /submit-identity-update
  * Submits the identity document update request
+ * @param data - Form data to submit
+ * @param idempotencyKey - Unique key to prevent duplicate submissions
+ * @param signal - Optional AbortSignal for cancellation
  */
 export async function submitIdentityUpdate(
   data: Record<string, unknown>,
+  idempotencyKey?: string,
   signal?: AbortSignal
 ): Promise<{
   success: boolean;
@@ -190,8 +220,16 @@ export async function submitIdentityUpdate(
 }> {
   await randomDelay(signal);
 
-  // Simulate successful submission
-  console.log('Identity update submitted:', data);
+  // Simulate network failure if enabled
+  if (shouldSimulateFailure()) {
+    simulateNetworkError();
+  }
+
+  // In a real API, the idempotency key would be sent as a header:
+  // headers: { 'Idempotency-Key': idempotencyKey }
+  // The server would check if this key was already processed
+  // and return the cached response if so.
+  console.log('Identity update submitted:', { data, idempotencyKey });
 
   return {
     success: true,

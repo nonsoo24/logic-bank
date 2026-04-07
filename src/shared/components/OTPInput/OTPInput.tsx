@@ -170,14 +170,10 @@ export function OTPInput({
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-start gap-2 mt-1">
         {error && (
-          <div
-            id={`${inputId}-error`}
-            className="flex items-center gap-1.5 mt-1 flex-wrap"
-            role="alert"
-          >
-            <img src={InfoIconError} alt="" className="w-4 h-4 shrink-0" />
+          <div id={`${inputId}-error`} className="flex items-start gap-1.5" role="alert">
+            <img src={InfoIconError} alt="" className="w-4 h-4 shrink-0 mt-0.5" />
             <AppHintText variant="error" className="font-light text-base! ml-1!">
               {error}
             </AppHintText>
@@ -189,7 +185,7 @@ export function OTPInput({
           <button
             type="button"
             onClick={onCancelRequest}
-            className="font-light text-base text-primary underline mt-1 hover:text-primary/80 cursor-pointer"
+            className="font-light text-base text-primary underline hover:text-primary/80 cursor-pointer whitespace-nowrap shrink-0"
           >
             Cancel Request
           </button>

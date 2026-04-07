@@ -30,10 +30,16 @@ export function TermsPage() {
       onAgree={handleAgree}
     >
       <p>
-        I, <strong>{accountName || 'Account Holder'}</strong>, hereby authorize{' '}
-        {APP_CONFIG.BANK_NAME_FULL} ("{APP_CONFIG.BANK_NAME_SHORT}") to process my identity document
-        update request.
+        I, <strong>{accountName || 'Account Holder'}</strong>, hereby provide my consent to{' '}
+        {APP_CONFIG.BANK_NAME_FULL} ("{APP_CONFIG.BANK_NAME_SHORT}") to open the following
+        account(s) on my behalf:
       </p>
+
+      <ol className="list-decimal list-inside space-y-1 my-4">
+        <li>Account Type: [e.g., Savings Account/Checking Account]</li>
+        <li>Account Currency: [e.g., USD, EUR]</li>
+        <li>Additional Account (if applicable): [Specify if opening multiple accounts]</li>
+      </ol>
 
       <p>
         I understand and agree to abide by the terms and conditions set forth by{' '}

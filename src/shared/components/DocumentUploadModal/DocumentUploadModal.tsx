@@ -28,10 +28,6 @@ const idDocumentSlides: Slide[] = [
     image: IDDocument3,
     text: 'The ID Document needs to be clear with no reflection, make sure all the data is readable.',
   },
-  {
-    image: IDDocument1,
-    text: 'Ensure your ID Document is within the frame and all corners are visible.',
-  },
 ];
 
 const passportSlides: Slide[] = [
@@ -46,10 +42,6 @@ const passportSlides: Slide[] = [
   {
     image: IDDocument3,
     text: 'The passport needs to be clear with no reflection, make sure all the data is readable.',
-  },
-  {
-    image: IDDocument1,
-    text: 'Ensure your passport is within the frame and all corners are visible.',
   },
 ];
 

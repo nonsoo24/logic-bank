@@ -4,11 +4,13 @@ import { validateDocuments, submitIdentityUpdate } from '../services/mockApi';
 import type { IdentityDocumentFormData } from '../schema';
 import { useModalStore } from '@/shared/store';
 import { ROUTES, FLOW_STEPS, type FlowStep } from '@/shared/constants';
+import { generateIdempotencyKey } from '@/shared/utils/idempotency';
 import type { UseFormTrigger } from 'react-hook-form';
 
 interface UseFormSubmissionOptions {
   setStep: (step: FlowStep) => void;
   resetFlow: () => void;
+  resetAccount: () => void;
   clearFiles: () => void;
   showProceedModal: () => void;
   hideProceedModal: () => void;
@@ -27,6 +29,7 @@ const isAbortError = (err: unknown): boolean =>
 export function useFormSubmission({
   setStep,
   resetFlow,
+  resetAccount,
   clearFiles,
   showProceedModal,
   hideProceedModal,
@@ -34,6 +37,7 @@ export function useFormSubmission({
   const navigate = useNavigate();
   const [isUpdating, setIsUpdating] = useState(false);
   const isSubmittingRef = useRef(false);
+  const lastSubmittedDataRef = useRef<IdentityDocumentFormData | null>(null);
 
   const { openModal, closeModal } = useModalStore();
 
@@ -98,13 +102,20 @@ export function useFormSubmission({
     async (data: IdentityDocumentFormData) => {
       if (isUpdating || isSubmittingRef.current) return;
 
+      // Store data for potential retry
+      lastSubmittedDataRef.current = data;
+
       isSubmittingRef.current = true;
       setIsUpdating(true);
 
+      // Generate idempotency key for this submission attempt
+      const idempotencyKey = generateIdempotencyKey();
+
       try {
-        const response = await submitIdentityUpdate(data);
+        const response = await submitIdentityUpdate(data, idempotencyKey);
 
         if (response.success) {
+          lastSubmittedDataRef.current = null; // Clear on success
           openModal({
             variant: 'success',
             title: 'Submission successful',
@@ -117,6 +128,7 @@ export function useFormSubmission({
               navigate(ROUTES.HOME, { replace: true });
               setTimeout(() => {
                 resetFlow();
+                resetAccount();
                 clearFiles();
               }, 100);
             },
@@ -126,6 +138,7 @@ export function useFormSubmission({
               navigate(ROUTES.HOME, { replace: true });
               setTimeout(() => {
                 resetFlow();
+                resetAccount();
                 clearFiles();
               }, 100);
             },
@@ -140,7 +153,49 @@ export function useFormSubmission({
             secondaryLabel: 'Close',
             onPrimary: () => {
               closeModal();
-              // Will need to re-trigger submit from parent
+              // Reset flags and retry with stored data
+              if (lastSubmittedDataRef.current) {
+                isSubmittingRef.current = false;
+                setIsUpdating(false);
+                // Use setTimeout to allow state to settle before retrying
+                const dataToRetry = lastSubmittedDataRef.current;
+                setTimeout(() => {
+                  // Manually trigger re-submission by dispatching form submit
+                  // Since we can't call onSubmit recursively, we need to simulate
+                  submitIdentityUpdate(dataToRetry, generateIdempotencyKey())
+                    .then((retryResponse) => {
+                      if (retryResponse.success) {
+                        lastSubmittedDataRef.current = null;
+                        openModal({
+                          variant: 'success',
+                          title: 'Submission successful',
+                          description:
+                            'Your update request is in progress. It will be treated within 24 hours',
+                          primaryLabel: 'Home',
+                          onPrimary: () => {
+                            closeModal();
+                            setStep(FLOW_STEPS.SUBMITTED);
+                            navigate(ROUTES.HOME, { replace: true });
+                            setTimeout(() => {
+                              resetFlow();
+                              resetAccount();
+                              clearFiles();
+                            }, 100);
+                          },
+                        });
+                      }
+                    })
+                    .catch(() => {
+                      openModal({
+                        variant: 'error',
+                        title: 'Retry failed',
+                        description: 'Please try again later.',
+                        primaryLabel: 'Close',
+                        onPrimary: closeModal,
+                      });
+                    });
+                }, 100);
+              }
             },
             onSecondary: closeModal,
           });
@@ -152,24 +207,62 @@ export function useFormSubmission({
           description: isAbortError(err)
             ? 'Request was cancelled.'
             : 'Network error. Please check your connection and try again.',
-          primaryLabel: 'Home',
-          secondaryLabel: 'Close',
+          primaryLabel: 'Retry',
+          secondaryLabel: 'Cancel',
           onPrimary: () => {
             closeModal();
-            setTimeout(() => {
-              resetFlow();
-              clearFiles();
-            }, 0);
-            navigate(ROUTES.HOME, { replace: true });
+            // Reset flags and retry with stored data
+            if (lastSubmittedDataRef.current) {
+              isSubmittingRef.current = false;
+              setIsUpdating(false);
+              const dataToRetry = lastSubmittedDataRef.current;
+              setTimeout(() => {
+                submitIdentityUpdate(dataToRetry, generateIdempotencyKey())
+                  .then((retryResponse) => {
+                    if (retryResponse.success) {
+                      lastSubmittedDataRef.current = null;
+                      openModal({
+                        variant: 'success',
+                        title: 'Submission successful',
+                        description:
+                          'Your update request is in progress. It will be treated within 24 hours',
+                        primaryLabel: 'Home',
+                        onPrimary: () => {
+                          closeModal();
+                          setStep(FLOW_STEPS.SUBMITTED);
+                          navigate(ROUTES.HOME, { replace: true });
+                          setTimeout(() => {
+                            resetFlow();
+                            resetAccount();
+                            clearFiles();
+                          }, 100);
+                        },
+                      });
+                    }
+                  })
+                  .catch(() => {
+                    openModal({
+                      variant: 'error',
+                      title: 'Retry failed',
+                      description: 'Network error. Please try again later.',
+                      primaryLabel: 'Close',
+                      onPrimary: closeModal,
+                    });
+                  });
+              }, 100);
+            }
           },
-          onSecondary: closeModal,
+          onSecondary: () => {
+            closeModal();
+            lastSubmittedDataRef.current = null;
+          },
         });
       } finally {
         setIsUpdating(false);
         isSubmittingRef.current = false;
       }
     },
-    [isUpdating, openModal, closeModal, setStep, resetFlow, clearFiles, navigate]
+    [isUpdating, openModal, closeModal, setStep, resetFlow, resetAccount, clearFiles, navigate]
   );
 
   return {

@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, type MouseEvent } from 'react';
 import { CautionOutline, InfoIcon, ErrorIcon, SuccessIcon } from '@/assets/svg';
 import { AppButton } from '@/shared/components/AppButton';
 
-const MODAL_DIALOG_CLASS = 'backdrop:bg-navy/60 bg-transparent p-4 sm:p-6 m-auto';
+const MODAL_DIALOG_CLASS = 'backdrop:bg-navy/60 bg-transparent p-4 m-auto';
 const MODAL_PANEL_CLASS =
-  'bg-white rounded-lg p-6 sm:p-8 w-[min(92vw,30rem)] flex flex-col items-center justify-center text-center shadow-xl';
+  'bg-white rounded-lg px-8 py-10 sm:px-12 sm:py-12 w-full max-w-[calc(100vw-2rem)] sm:max-w-[480px] min-h-[354px] flex flex-col items-center justify-center text-center shadow-xl';
 
 export type ModalVariant = 'info' | 'success' | 'error' | 'warning';
 
@@ -101,7 +101,10 @@ export function Modal({
             </div>
           )}
 
-          <h2 id="modal-title" className="text-xl font-bold text-neutral-dark mb-2 text-center!">
+          <h2
+            id="modal-title"
+            className="text-xl font-bold text-neutral-dark mb-2 text-center! mt-5"
+          >
             {title}
           </h2>
 
@@ -115,14 +118,15 @@ export function Modal({
             )
           )}
 
-          <div className="w-full flex flex-col-reverse sm:flex-row gap-3 justify-center">
+          <div className="w-full flex flex-col-reverse sm:flex-row gap-4 justify-center mt-4">
             {secondaryButton && (
               <AppButton
                 variant="outline"
                 color="primary"
                 label={secondaryButton.label}
                 onClick={secondaryButton.onClick}
-                className="w-full sm:flex-1 sm:max-w-[12rem]"
+                className="w-full sm:w-48 h-10 rounded px-4 py-2"
+                textClassName="text-base font-semibold leading-[150%]"
               />
             )}
             <AppButton
@@ -130,7 +134,8 @@ export function Modal({
               color="primary"
               label={primaryButton.label}
               onClick={primaryButton.onClick}
-              className={`w-full sm:flex-1 ${secondaryButton ? 'sm:max-w-[12rem]' : ''}`}
+              className="w-full sm:w-48 h-10 rounded px-4 py-2"
+              textClassName="text-base font-semibold leading-[150%]"
             />
           </div>
         </div>

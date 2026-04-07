@@ -8,7 +8,7 @@ import {
   type ChangeEvent,
 } from 'react';
 import { AppHintText } from '../AppHintText';
-import { UploadIcon, AttachmentIcon } from '@/assets/svg';
+import { UploadIcon, AttachmentIcon, CheckMark } from '@/assets/svg';
 
 export interface FileUploadHandle {
   triggerUpload: () => void;
@@ -22,6 +22,7 @@ export interface FileUploadProps {
   maxSizeMB?: number;
   disabled?: boolean;
   value?: File | null;
+  wasUploaded?: boolean; // Shows "Previously uploaded" state when file is lost on refresh
   onChange?: (file: File | null) => void;
   onError?: (message: string) => void;
   onBeforeUpload?: () => boolean | void;
@@ -45,6 +46,7 @@ export const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(function
     maxSizeMB = 10,
     disabled = false,
     value,
+    wasUploaded = false,
     onChange,
     onError,
     onBeforeUpload,
@@ -61,6 +63,7 @@ export const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(function
   const displayError = error || localError;
   const hasError = Boolean(displayError);
   const hasFile = Boolean(value);
+  const showPreviouslyUploaded = wasUploaded && !value;
 
   useImperativeHandle(ref, () => ({
     triggerUpload: () => {
@@ -178,9 +181,11 @@ export const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(function
       ? 'border-error bg-red-50'
       : hasFile
         ? 'border-primary/50 bg-primary/5'
-        : isDragging
-          ? 'border-primary bg-primary/10'
-          : 'border-neutral-gray/30 bg-white hover:border-primary/50 hover:bg-primary/5';
+        : showPreviouslyUploaded
+          ? 'border-success/50 bg-success/5'
+          : isDragging
+            ? 'border-primary bg-primary/10'
+            : 'border-neutral-gray/30 bg-white hover:border-primary/50 hover:bg-primary/5';
 
   return (
     <div className="w-full">
@@ -226,6 +231,12 @@ export const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(function
               {value.name}
             </a>
             <span className="text-neutral-gray text-sm mt-1">({formatFileSize(value.size)})</span>
+          </div>
+        ) : showPreviouslyUploaded ? (
+          <div className="flex flex-col items-center text-center">
+            <img src={CheckMark} alt="" className="w-6 h-6 mb-2" aria-hidden="true" />
+            <p className="text-success font-medium text-sm">Previously uploaded</p>
+            <p className="text-xs text-neutral-gray mt-1">Click to re-upload if needed</p>
           </div>
         ) : (
           <div className="flex flex-col items-center text-center">

@@ -38,6 +38,7 @@ export function IdentityDocumentPage() {
     resetFlow,
     acceptTerms,
     rejectTerms,
+    updateFormData,
   } = useIdentityDocumentStore();
 
   // File upload store
@@ -88,6 +89,7 @@ export function IdentityDocumentPage() {
     isVerified: storedIsVerified,
     setAccountNumber: storeSetAccountNumber,
     setVerified: storeSetVerified,
+    reset: resetAccount,
   } = useAccountStore();
 
   // Initialize from persisted store state
@@ -168,6 +170,7 @@ export function IdentityDocumentPage() {
   const formSubmission = useFormSubmission({
     setStep,
     resetFlow,
+    resetAccount,
     clearFiles,
     showProceedModal,
     hideProceedModal,
@@ -180,6 +183,20 @@ export function IdentityDocumentPage() {
     setIsAccountVerified(false);
     accountVerification.resetVerification();
     setValue('accountNumber', '');
+  };
+
+  // Document upload handlers
+  const handleDocumentUpload = () => {
+    if (activeDocumentFieldRef.current === 'front') {
+      documentFrontRef.current?.triggerUpload();
+    } else {
+      documentBackRef.current?.triggerUpload();
+    }
+  };
+
+  const handleUtilityBillUpload = () => {
+    hideUtilityBillModal();
+    setTimeout(() => utilityBillRef.current?.triggerUpload(), 100);
   };
 
   // Form configuration for dynamic fields
@@ -271,6 +288,45 @@ export function IdentityDocumentPage() {
     if (documentBack) setValue('documentBack', documentBack);
     if (utilityBill) setValue('utilityBill', utilityBill);
   }, [documentFront, documentBack, utilityBill, setValue]);
+
+  // Watch form fields and persist to store
+  const nin = watch('nin');
+  const documentType = watch('documentType');
+  const documentNumber = watch('documentNumber');
+  const acceptTermsValue = watch('acceptTerms');
+  const occupation = watch('occupation');
+  const natureOfBusiness = watch('natureOfBusiness');
+  const employerName = watch('employerName');
+  const employerAddress = watch('employerAddress');
+  const annualTurnOver = watch('annualTurnOver');
+
+  // Persist form data to store on change
+  useEffect(() => {
+    updateFormData({
+      accountNumber,
+      nin,
+      documentType,
+      documentNumber,
+      acceptTerms: acceptTermsValue,
+      occupation,
+      natureOfBusiness,
+      employerName,
+      employerAddress,
+      annualTurnOver,
+    });
+  }, [
+    accountNumber,
+    nin,
+    documentType,
+    documentNumber,
+    acceptTermsValue,
+    occupation,
+    natureOfBusiness,
+    employerName,
+    employerAddress,
+    annualTurnOver,
+    updateFormData,
+  ]);
 
   const showOtpSection = currentStep === FLOW_STEPS.VERIFICATION && isAccountVerified;
   const showDocumentsSection =
@@ -381,13 +437,7 @@ export function IdentityDocumentPage() {
       {/* Document Upload Instructions Modal */}
       <DocumentUploadModal
         isOpen={isDocumentUploadModalOpen}
-        onUpload={() => {
-          if (activeDocumentFieldRef.current === 'front') {
-            documentFrontRef.current?.triggerUpload();
-          } else {
-            documentBackRef.current?.triggerUpload();
-          }
-        }}
+        onUpload={handleDocumentUpload}
         onClose={hideDocumentUploadModal}
       />
 
@@ -399,10 +449,7 @@ export function IdentityDocumentPage() {
         description="Utility bill (less than six months)"
         primaryButton={{
           label: 'Upload now',
-          onClick: () => {
-            hideUtilityBillModal();
-            setTimeout(() => utilityBillRef.current?.triggerUpload(), 100);
-          },
+          onClick: handleUtilityBillUpload,
         }}
         secondaryButton={{ label: 'Skip for now', onClick: hideUtilityBillModal }}
         onClose={hideUtilityBillModal}

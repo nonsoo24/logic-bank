@@ -37,7 +37,8 @@ export function useAccountVerification({
   const verificationAttemptedRef = useRef(false);
   const isVerifyingRef = useRef(false);
   const onVerifiedRef = useRef(onVerified);
-  const { setAccountNumber: storeAccountNumber } = useAccountStore();
+  const { setAccountNumber: storeAccountNumber, setAccountName: storeAccountName } =
+    useAccountStore();
 
   // Keep callback ref updated
   useEffect(() => {
@@ -98,6 +99,7 @@ export function useAccountVerification({
           setMaskedPhone(account.phone);
           setMaskedEmail(account.email);
           storeAccountNumber(accountNumber);
+          storeAccountName(account.name);
           onVerifiedRef.current?.(account.phone, account.email);
         } else {
           setError(response.error || 'Account verification failed');
@@ -120,7 +122,7 @@ export function useAccountVerification({
     return () => {
       controller.abort();
     };
-  }, [accountNumber, currentStep, isOtpVerified, storeAccountNumber]);
+  }, [accountNumber, currentStep, isOtpVerified, storeAccountNumber, storeAccountName, isVerified]);
 
   // Reset when account number changes (user editing)
   useEffect(() => {

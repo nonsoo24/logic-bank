@@ -9,6 +9,7 @@ export interface AppButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> 
   color?: ButtonColor;
   size?: ButtonSize;
   label?: string;
+  textClassName?: string;
   iconStart?: ReactNode;
   iconEnd?: ReactNode;
   isLoading?: boolean;
@@ -51,6 +52,7 @@ export function AppButton({
   isLoading = false,
   disabled,
   className = '',
+  textClassName = '',
   children,
   ...props
 }: AppButtonProps) {
@@ -75,7 +77,7 @@ export function AppButton({
       ) : (
         <>
           {iconStart}
-          {content && <span className="font-medium text-xs">{content}</span>}
+          {content && <span className={`font-medium text-xs ${textClassName}`}>{content}</span>}
           {iconEnd}
         </>
       )}

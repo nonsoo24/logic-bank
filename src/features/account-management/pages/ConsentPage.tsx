@@ -1,14 +1,19 @@
 import { useNavigate } from 'react-router-dom';
 import { LegalAgreement } from '@/shared/components';
 import { ROUTES, APP_CONFIG } from '@/shared/constants';
-import { useIdentityDocumentStore } from '../store';
+import { useIdentityDocumentStore, useAccountStore, useFileUploadStore } from '../store';
 
 export function ConsentPage() {
   const navigate = useNavigate();
   const { acceptConsent, resetFlow } = useIdentityDocumentStore();
+  const { reset: resetAccount } = useAccountStore();
+  const { clearFiles } = useFileUploadStore();
 
   const handleReject = () => {
+    // Reset all stores to clear persisted data
     resetFlow();
+    resetAccount();
+    clearFiles();
     navigate(ROUTES.HOME);
   };
 

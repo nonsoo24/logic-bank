@@ -41,7 +41,7 @@ export function LegalAgreement({
     <Layout>
       {onBack && <BackHeader title={title} onBack={onBack} />}
 
-      <main className="px-4 sm:px-6 md:px-12 pb-8">
+      <main className="px-4 sm:px-6 md:px-12 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto">
           {!onBack && (
             <h2
